@@ -27,3 +27,31 @@ function declare(typename, fn) {
 	namespace(typename, cons);
 }
 
+// don't need this particularly:
+(function () {
+	var store = { }, ccs = { }, locks = { };
+	window.reg = {
+		get: function () {
+		},
+		cc: function (key, dest, destKey) {
+		},
+		set: function (key, val) {
+			if (locks[key]) throw new Error("cyclical dependency detected in reg");
+			locks[key] = true;
+			var old = store[key];
+			store[key] = val;
+			if (ccs[key]) {
+				var event = {
+					key: key,
+					value: val,
+					old: old
+				}
+				for (var i = 0; i < ccs[key].length; i++) {
+					ccs[key][i]
+				}
+			}
+			locks[key] = false;
+		}
+	}
+})
+

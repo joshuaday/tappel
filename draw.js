@@ -2,8 +2,13 @@
 	var sprites = { };
 	var scenes = { };
 
-	var pal = new widget.palette()
-	var zoom = new widget.zoom()
+	var test = testSprite(32);
+
+	var widgets = [
+		{x: 50, y: 0, w: new widget.palette()},
+		{x: 0, y: 0, w: new widget.viewer(test)},
+		{x: 0, y: 50, w: new widget.zoom(test)}
+	]
 	var host, canvas, context;
 
 	var held = false;
@@ -33,6 +38,15 @@
 		var x = e.offsetX;
 		var y = e.offsetY;
 		if (held) {
+			// find a widget
+			for (var i = 0; i < widgets.length; i++) {
+				var widget = widgets[i];
+				if (widget.command) {
+					
+				}
+			}
+			
+/*
 			context.fillStyle = "#FFFFFF";
 			context.strokeStyle = "rgba(255, 255, 128, 1)";
 			context.lineWidth = 5;
@@ -47,8 +61,8 @@
 			} else {
 				// context.fillRect(x,y,1,1);
 			}
-			test.blit(context, x, y);
 			oldx = x; oldy = y;
+*/
 		}
 	}
 
@@ -56,15 +70,44 @@
 	// hidden.width = 64
 	// hidden.height = 64
 	// context.drawImage(hidden, x, y)
+
 	function animate() {
-		pal.draw();
-		pal.blit(context);
+		requestAnimationFrame(animationFrame);
+	}
 
-// zoom.original = pal.sprite;
-		zoom.draw();
-		zoom.blit(context);
+	function testSprite(s) {
+		var original = new art.sprite(s, s);
+		for (var i=0; i < 19; i++) {
+			original.context.strokeStyle = encodeColor(randomColor());
+			original.context.lineWidth = 1.5;
+			original.context.beginPath();
+			original.context.moveTo(Math.random() * s, Math.random() * s);
+			original.context.lineTo(Math.random() * s, Math.random() * s);
+			original.context.stroke();
+		}
+		return original;
+	}
 
-		// requestAnimationFrame(animate);
+	function animationFrame(timestamp) {
+		for (var i = 0; i < widgets.length; i++) {
+			var
+				placement = widgets[i],
+				widget = placement.w,
+				x1 = placement.x, y1 = placement.y;
+			widget.draw();
+			if (widget.sprite) {
+				context.drawImage(widget.sprite.canvas, x1, y1);
+			}
+			if (widget.element) {
+				$(widget.element)
+					.css("position", "absolute")
+					.css("left", x1)
+					.css("left", y1)
+				host.append(widget.element);
+			}
+		}
+
+		// requestAnimationFrame(animationFrame);
 	}
 
 	function init() {

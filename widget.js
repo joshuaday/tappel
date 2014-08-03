@@ -1,9 +1,50 @@
+declare ("widget.base", {
+	init: function () {
+		
+	},
+	draw: function () {
+		
+	},
+	blit: function (context) {
+		
+	},
+	choose: function () {
+		// annotate the event with a choice --
+		//   sprite + x + y
+		//   a tool
+		//   a color
+		//   a palette 
+		//   a compound
+	}
+});
+
+declare ("widget.colorPicker", {
+	init: function () {
+		// this.element = 
+	},
+	draw: function () {
+		
+	},
+	blit: function (context) {
+		
+	}
+});
+
+declare ("widget.viewer", {
+	base: widget.base,
+	init: function (original) {
+		this.original = original;
+	},
+	draw: function () {
+		this.sprite = this.original;
+	}
+})
+
 declare ("widget.palette", {
+	base: widget.base,
 	init: function () {
 		this.sprite = new art.sprite();
 		this.boxSize = 32; // including gap
-
-		this.element = this.sprite.canvas;
 		
 		this.colors = [
 			[0, 0, 0],
@@ -34,28 +75,26 @@ declare ("widget.palette", {
 			context.fill();
 			context.stroke();
 		}
-	},
-	blit: function (context) {
-		var x = 0, y = 0;
-		context.drawImage(this.sprite.canvas, x, y);
 	}
 });
 
 declare ("widget.zoom", {
-	init: function () {
+	base: widget.base,
+	init: function (original) {
 		this.sprite = new art.sprite();
 		this.zoom = 8;
 
-		var self = this;
-		this.original = new art.sprite(32, 32);
-		for (var i=0; i < 19; i++) {
-			this.original.context.strokeStyle = encodeColor(randomColor());
-			this.original.context.lineWidth = 1.5;
-			this.original.context.beginPath();
-			this.original.context.moveTo(Math.random() * 32, Math.random() * 32);
-			this.original.context.lineTo(Math.random() * 32, Math.random() * 32);
-			this.original.context.stroke();
-		}
+		this.original = original;
+	},
+	command: function (event) {
+		var x = event.x / this.zoom;
+		var y = event.y / this.zoom;
+		this.original.context.getImageData(x, y, 1, 1);
+		data.data[0] = 255;
+		data.data[1] = 255;
+		data.data[2] = 255;
+		data.data[3] = 255;
+		this.original.context.putImageData(data, x, y);
 	},
 	draw: function () {
 		if (this.original && this.original.canvas) {
@@ -82,11 +121,6 @@ declare ("widget.zoom", {
 		} else {
 			this.sprite.resize(1, 1, false);
 		}
-	},
-	blit: function (context) {
-		var x = 0, y = 64;
-		context.drawImage(this.sprite.canvas, x, y);
-		context.drawImage(this.original.canvas, x, y);
 	}
 });
 
@@ -97,3 +131,4 @@ function randomColor() {
 function encodeColor(color) {
 	return "rgb(" + color.join(",") + ")";
 }
+
